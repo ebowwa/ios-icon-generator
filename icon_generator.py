@@ -56,6 +56,11 @@ class IconGenerator:
         colors: Tuple[str, str],
         style: str = "minimalist",
         model: str = "dalle-3",
+        app_description: str = "",
+        icon_elements: list = None,
+        target_audience: str = "",
+        locale: str = "en",
+        cultural_style: str = "",
         additional_prompt: str = ""
     ) -> Optional[Image.Image]:
         """
@@ -66,13 +71,23 @@ class IconGenerator:
             colors: Tuple of (top_color, bottom_color) for gradient
             style: Design style (minimalist, modern, playful, etc.)
             model: AI model to use ('dalle-3', 'dalle-2', or 'gpt-image-1')
+            app_description: Description of what the app does
+            icon_elements: List of visual elements to include (e.g., ['moon', 'stars', 'clouds'])
+            target_audience: Target audience (e.g., 'professionals', 'children', 'seniors')
+            locale: Language/region code (e.g., 'en', 'ja', 'es-MX')
+            cultural_style: Cultural design preferences (e.g., 'Japanese minimalism', 'Mexican vibrant')
             additional_prompt: Additional details for the prompt
             
         Returns:
             PIL Image object or None if generation fails
         """
-        # Build the prompt
-        prompt = self._build_prompt(app_name, colors, style, additional_prompt)
+        # Build the prompt with rich context
+        prompt = self._build_prompt(
+            app_name, colors, style, 
+            app_description, icon_elements, 
+            target_audience, locale, cultural_style,
+            additional_prompt
+        )
         
         # Map model name to ImageModel enum
         model_map = {
@@ -120,21 +135,66 @@ class IconGenerator:
         app_name: str,
         colors: Tuple[str, str],
         style: str,
+        app_description: str,
+        icon_elements: list,
+        target_audience: str,
+        locale: str,
+        cultural_style: str,
         additional_prompt: str
     ) -> str:
-        """Build the generation prompt"""
+        """Build the generation prompt with rich context"""
         
-        base_prompt = f"""Create a {style} iOS app icon with these specifications:
+        # Start with base specifications
+        base_prompt = f"""Create a {style} iOS app icon for "{app_name}"
+
+TECHNICAL SPECIFICATIONS:
 - Size: 1024x1024 pixel perfect square
 - Background: Smooth vertical gradient from {colors[0]} (top) to {colors[1]} (bottom)
-- Design: Clean, professional app icon suitable for the App Store
-- Text: "{app_name}" if it fits naturally in the design
-- Style: {style} design with no 3D effects or excessive shadows
 - Format: Full bleed to edges, no rounded corners (iOS adds these automatically)
+- Style: {style} design with no 3D effects or excessive shadows
 """
         
+        # Add app context if provided
+        if app_description:
+            base_prompt += f"\nAPP CONTEXT:\n- Purpose: {app_description}"
+        
+        if target_audience:
+            base_prompt += f"\n- Target Audience: {target_audience}"
+        
+        # Add localization context
+        locale_context = {
+            'en': 'American/International design aesthetic',
+            'ja': 'Japanese design with attention to harmony and minimalism',
+            'ko': 'Korean modern K-design aesthetic',
+            'zh-Hans': 'Simplified Chinese modern style',
+            'zh-Hant': 'Traditional Chinese elegant style',
+            'es': 'Spanish warm and inviting design',
+            'es-MX': 'Mexican vibrant and colorful style',
+            'fr': 'French elegant and sophisticated design',
+            'de': 'German precise and functional design',
+            'it': 'Italian stylish and artistic design',
+            'pt-BR': 'Brazilian lively and energetic design',
+            'ar': 'Arabic elegant design with right-to-left consideration',
+            'ru': 'Russian bold and impactful design'
+        }
+        
+        if locale in locale_context:
+            base_prompt += f"\n- Localization: {locale_context[locale]}"
+        
+        if cultural_style:
+            base_prompt += f"\n- Cultural Style: {cultural_style}"
+        
+        # Add visual elements
+        if icon_elements:
+            elements_str = ", ".join(icon_elements)
+            base_prompt += f"\n\nVISUAL ELEMENTS:\nInclude these elements in the design: {elements_str}"
+        
+        # Add app name display
+        base_prompt += f"\n\nTEXT:\nDisplay '{app_name}' in the design if it fits naturally and enhances the icon"
+        
+        # Add any additional custom prompt
         if additional_prompt:
-            base_prompt += f"\nAdditional details: {additional_prompt}"
+            base_prompt += f"\n\nADDITIONAL REQUIREMENTS:\n{additional_prompt}"
         
         return base_prompt
     
@@ -249,6 +309,16 @@ def main():
     parser.add_argument('--output', type=Path, default=Path.cwd(),
                        help='Output directory')
     parser.add_argument('--api-key', help='OpenAI API key')
+    parser.add_argument('--description', default='',
+                       help='Description of what the app does')
+    parser.add_argument('--elements', nargs='+', default=[],
+                       help='Visual elements to include (e.g., moon stars clouds)')
+    parser.add_argument('--audience', default='',
+                       help='Target audience (e.g., professionals, children)')
+    parser.add_argument('--locale', default='en',
+                       help='Language/region code (e.g., en, ja, es-MX)')
+    parser.add_argument('--cultural-style', default='',
+                       help='Cultural design preferences')
     parser.add_argument('--additional', default='',
                        help='Additional prompt details')
     
@@ -258,12 +328,17 @@ def main():
         # Initialize generator
         generator = IconGenerator(api_key=args.api_key)
         
-        # Generate icon
+        # Generate icon with rich context
         image = generator.generate_icon(
             app_name=args.app_name,
             colors=tuple(args.colors),
             style=args.style,
             model=args.model,
+            app_description=args.description,
+            icon_elements=args.elements,
+            target_audience=args.audience,
+            locale=args.locale,
+            cultural_style=args.cultural_style,
             additional_prompt=args.additional
         )
         
