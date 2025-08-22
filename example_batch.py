@@ -3,7 +3,7 @@
 Example batch generation script for multiple localized icons
 """
 
-from icon_generator import IconGenerator
+from src import IconGenerator
 from pathlib import Path
 
 

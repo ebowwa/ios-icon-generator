@@ -9,13 +9,13 @@ from pathlib import Path
 from typing import Optional, Dict, List, Tuple
 from dotenv import load_dotenv
 
-from ai_generator import AIIconGenerator
-from image_processor import IOSIconProcessor
-from prompt_builder import IconPromptBuilder
-from ios_localization_reader import IOSLocalizationReader
+from .ai_generator import AIIconGenerator
+from .image_processor import IOSIconProcessor
+from .prompt_builder import IconPromptBuilder
+from .ios_localization_reader import IOSLocalizationReader
 
 
-class IconGeneratorV2:
+class IconGenerator:
     """Orchestrator for icon generation with modular architecture"""
     
     def __init__(self, api_key: Optional[str] = None):

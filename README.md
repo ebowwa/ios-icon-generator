@@ -1,148 +1,229 @@
 # iOS Icon Generator
 
-Generate professional iOS app icons using AI image generation powered by OpenAI's DALL-E and GPT-Image models via `ai_proxy_core`.
+AI-powered iOS app icon generation with localization support, using OpenAI's DALL-E and GPT-Image models via `ai_proxy_core`.
 
-## 🆕 Version 2 - Refactored Architecture
+## 🏗️ Architecture
 
-The project now includes a refactored version (`icon_generator_v2.py`) with:
-- **Modular architecture** following Single Responsibility Principle
-- **iOS localization support** - reads InfoPlist.strings and Localizable.strings
-- **Automatic multi-locale generation** from iOS projects
-- **Cultural design context** for 25+ locales
-- **Separated concerns** with dedicated modules for AI, image processing, and prompts
+Modular, composable architecture following Single Responsibility Principle:
 
-## Features
+```
+src/
+├── icon_generator.py         # Main orchestrator
+├── ai_generator.py           # AI image generation (DALL-E, GPT-Image)
+├── image_processor.py        # iOS icon processing (12 sizes + Contents.json)
+├── prompt_builder.py         # Cultural prompt construction (25+ locales)
+└── ios_localization_reader.py # iOS project file reader (.strings files)
+```
 
-- 🎨 AI-powered icon generation using DALL-E 3, DALL-E 2, or GPT-Image-1
-- 📱 Generates all required iOS icon sizes automatically
-- 🎯 Creates Xcode-ready `.appiconset` directories
-- 🌈 Customizable gradients and design styles
-- 🔧 Simple CLI interface and Python API
+## ✨ Features
 
-## Installation
+- 🎨 **AI Models**: DALL-E 3, DALL-E 2, GPT-Image-1
+- 🌍 **Localization**: Reads InfoPlist.strings and Localizable.strings
+- 🎯 **Cultural Context**: Design aesthetics for 25+ locales
+- 📱 **iOS Ready**: Generates all 12 required sizes + Contents.json
+- 🔧 **Composable**: Use modules independently or together
+- 🚀 **Batch Generation**: Generate icons for all locales at once
+
+## 📦 Installation
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Requirements
-
+**Requirements:**
 - Python 3.8+
 - OpenAI API key
-- ai_proxy_core 0.4.3+
+- ai_proxy_core 0.4.3
 
-## Usage
+## 🚀 Usage
 
-### Command Line
-
-```bash
-# Basic usage
-python icon_generator.py "MyApp"
-
-# Custom colors and style
-python icon_generator.py "MyApp" --colors "#FF6B6B" "#4ECDC4" --style modern
-
-# Use GPT-Image-1 model
-python icon_generator.py "MyApp" --model gpt-image-1 --style minimalist
-
-# Specify output directory
-python icon_generator.py "MyApp" --output ./icons/
-
-# Add additional prompt details
-python icon_generator.py "MyApp" --additional "Include a moon symbol in the design"
-```
-
-### Python API
+### Basic Usage
 
 ```python
-from icon_generator import IconGenerator
+from src import IconGenerator
+
+generator = IconGenerator()
+generator.generate_icon(
+    app_name="MyApp",
+    colors=('#FF6B6B', '#4ECDC4'),
+    output_dir=Path('./output'),
+    model='dalle-3'
+)
+```
+
+### Generate from iOS Project
+
+Automatically reads localization files and generates culturally appropriate icons:
+
+```python
+from src import IconGenerator
 from pathlib import Path
 
-# Initialize with API key
-generator = IconGenerator(api_key="your-openai-api-key")
+generator = IconGenerator()
+generator.generate_from_ios_project(
+    ios_project_path=Path('/path/to/iOS/app'),
+    output_dir=Path('./output'),
+    model='dalle-3'
+)
+```
 
-# Generate an icon
-image = generator.generate_icon(
+### Use Individual Modules
+
+Each module can be used independently:
+
+```python
+from src import (
+    AIIconGenerator,
+    IOSIconProcessor, 
+    PromptBuilder,
+    IOSLocalizationReader
+)
+
+# Read iOS localization
+reader = IOSLocalizationReader()
+context = reader.get_app_context_from_project(ios_path, 'en')
+
+# Build culturally-aware prompt
+builder = PromptBuilder()
+prompt = builder.build_prompt(
     app_name="MyApp",
-    colors=("#1E3A8A", "#60A5FA"),
-    style="minimalist",
-    model="dalle-3"
+    locale='ja',
+    cultural_style='Japanese minimalist design'
 )
 
-# Save as complete icon set
-generator.save_icon_set(
-    image=image,
-    output_dir=Path("./output"),
-    name_prefix="MyApp"
+# Generate AI image
+ai_gen = AIIconGenerator()
+image = ai_gen.generate(prompt, model='dalle-3')
+
+# Process for iOS
+processor = IOSIconProcessor()
+processor.save_ios_iconset(image, output_dir)
+```
+
+## 🌍 Supported Locales
+
+The generator includes cultural design context for:
+
+- 🇺🇸 English (en)
+- 🇯🇵 Japanese (ja)
+- 🇨🇳 Chinese Simplified (zh-Hans)
+- 🇹🇼 Chinese Traditional (zh-Hant)
+- 🇰🇷 Korean (ko)
+- 🇪🇸 Spanish (es)
+- 🇲🇽 Spanish Mexico (es-MX)
+- 🇫🇷 French (fr)
+- 🇩🇪 German (de)
+- 🇮🇹 Italian (it)
+- 🇵🇹 Portuguese (pt-BR)
+- 🇷🇺 Russian (ru)
+- 🇸🇦 Arabic (ar)
+- 🇮🇳 Hindi (hi)
+- 🇹🇭 Thai (th)
+- 🇻🇳 Vietnamese (vi)
+- 🇮🇩 Indonesian (id)
+- 🇹🇷 Turkish (tr)
+- 🇳🇱 Dutch (nl)
+- 🇵🇱 Polish (pl)
+- 🇸🇪 Swedish (sv)
+- 🇳🇴 Norwegian (no)
+- 🇩🇰 Danish (da)
+- 🇫🇮 Finnish (fi)
+- 🇬🇷 Greek (el)
+- 🇮🇱 Hebrew (he)
+
+## 📱 iOS Icon Sizes Generated
+
+- 20pt: @2x (40×40), @3x (60×60)
+- 29pt: @2x (58×58), @3x (87×87)
+- 40pt: @2x (80×80), @3x (120×120)
+- 60pt: @2x (120×120), @3x (180×180)
+- 76pt: @1x (76×76), @2x (152×152)
+- 83.5pt: @2x (167×167)
+- 1024pt: @1x (1024×1024) - App Store
+
+## 🔧 Configuration
+
+Set your OpenAI API key:
+
+```bash
+export OPENAI_API_KEY='your-api-key'
+# or create .env file
+echo "OPENAI_API_KEY=your-api-key" > .env
+```
+
+## 📝 Examples
+
+### Batch Generation for Multiple Locales
+
+```python
+from src import IconGenerator
+
+generator = IconGenerator()
+
+locales = ['en', 'ja', 'zh-Hans', 'es-MX']
+for locale in locales:
+    generator.generate_icon(
+        app_name="SleepCycles",
+        locale=locale,
+        output_dir=Path(f'./icons/{locale}')
+    )
+```
+
+### Custom Style and Elements
+
+```python
+generator.generate_icon(
+    app_name="MyApp",
+    colors=('#1E3A8A', '#60A5FA'),
+    style='minimalist',
+    icon_elements=['moon', 'stars', 'clouds'],
+    app_description='Sleep tracking app',
+    target_audience='Health-conscious individuals',
+    cultural_style='Silicon Valley tech aesthetic'
 )
 ```
 
-## Configuration
-
-Set your OpenAI API key as an environment variable:
+## 🧪 Testing
 
 ```bash
-export OPENAI_API_KEY="your-api-key-here"
+# Test with English locale
+python test_en_locale.py
+
+# Test replacing actual app icons
+python test_replace_actual.py
 ```
 
-Or create a `.env` file:
+## 📁 Project Structure
+
 ```
-OPENAI_API_KEY=your-api-key-here
-```
-
-## Available Options
-
-### Models
-- `dalle-3` (default) - Best quality, slower
-- `dalle-2` - Faster, good quality  
-- `gpt-image-1` - Newest model, experimental
-
-### Styles
-- `minimalist` (default)
-- `modern`
-- `playful`
-- `professional`
-- `elegant`
-
-### Colors
-Specify as hex colors for gradient background:
-- `--colors "#top-color" "#bottom-color"`
-
-## Output
-
-The generator creates:
-- Complete `.appiconset` directory with all iOS sizes
-- `Contents.json` file for Xcode compatibility
-- Preview PNG file
-
-### Generated Icon Sizes
-- 20x20 (@2x, @3x)
-- 29x29 (@2x, @3x)  
-- 40x40 (@2x, @3x)
-- 60x60 (@2x, @3x)
-- 76x76 (@1x, @2x)
-- 83.5x83.5 (@2x)
-- 1024x1024 (App Store)
-
-## Examples
-
-```bash
-# Minimalist blue gradient
-python icon_generator.py "SleepApp" --colors "#1E3A8A" "#60A5FA"
-
-# Modern green gradient with moon theme
-python icon_generator.py "SleepApp" --colors "#059669" "#34D399" --style modern --additional "crescent moon symbol"
-
-# Professional app with GPT-Image-1
-python icon_generator.py "BusinessApp" --model gpt-image-1 --style professional --colors "#374151" "#9CA3AF"
+ios-icon-generator/
+├── src/                    # Core modules
+│   ├── __init__.py
+│   ├── icon_generator.py
+│   ├── ai_generator.py
+│   ├── image_processor.py
+│   ├── prompt_builder.py
+│   └── ios_localization_reader.py
+├── legacy/                 # Previous monolithic version
+├── example_batch.py        # Batch generation example
+├── test_*.py              # Test scripts
+├── requirements.txt
+├── README.md
+└── .gitignore
 ```
 
-## Dependencies
+## 🤝 Contributing
 
-- `ai_proxy_core` - OpenAI API integration
-- `Pillow` - Image processing
-- `python-dotenv` - Environment variable loading
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing`)
+5. Open a Pull Request
 
-## License
+## 📄 License
 
-MIT License
+MIT
+
+## 🙏 Credits
+
+Built with [ai_proxy_core](https://github.com/AI-Northstar-Tech/ai-proxy-core) for OpenAI API integration.
