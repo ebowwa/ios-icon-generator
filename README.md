@@ -2,6 +2,15 @@
 
 Generate professional iOS app icons using AI image generation powered by OpenAI's DALL-E and GPT-Image models via `ai_proxy_core`.
 
+## 🆕 Version 2 - Refactored Architecture
+
+The project now includes a refactored version (`icon_generator_v2.py`) with:
+- **Modular architecture** following Single Responsibility Principle
+- **iOS localization support** - reads InfoPlist.strings and Localizable.strings
+- **Automatic multi-locale generation** from iOS projects
+- **Cultural design context** for 25+ locales
+- **Separated concerns** with dedicated modules for AI, image processing, and prompts
+
 ## Features
 
 - 🎨 AI-powered icon generation using DALL-E 3, DALL-E 2, or GPT-Image-1

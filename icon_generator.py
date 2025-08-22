@@ -2,6 +2,7 @@
 """
 iOS Icon Generator using ai_proxy_core
 Generates all required iOS app icon sizes using AI image generation
+[MAJOR] TODO: NEED TO USE each LOCALIZATIONS InfoPList.strings as context
 """
 
 import os
@@ -131,6 +132,7 @@ class IconGenerator:
         return None
     
     def _build_prompt(
+    # [MAJOR] TODO: NEED TO USE each LOCALIZATIONS InfoPList.strings as context
         self,
         app_name: str,
         colors: Tuple[str, str],
@@ -199,6 +201,8 @@ TECHNICAL SPECIFICATIONS:
         return base_prompt
     
     def _extract_image(self, image_data) -> Optional[Image.Image]:
+    # this is a tool to the ai
+    # this should be a file following srp
         """Extract PIL Image from API response"""
         
         if isinstance(image_data, dict):
@@ -218,6 +222,7 @@ TECHNICAL SPECIFICATIONS:
         return None
     
     def save_icon_set(
+    # this should be abstracted and saved into a file following srp
         self,
         image: Image.Image,
         output_dir: Path,
@@ -265,6 +270,10 @@ TECHNICAL SPECIFICATIONS:
         return True
     
     def _create_contents_json(self, iconset_dir: Path):
+    # we intent to do this xc platforms
+    # we need to rename this function to be IOS specific
+    # we dont need android support yet
+    # next channel would be web so ico
         """Create Contents.json file for Xcode"""
         
         contents = {
@@ -294,6 +303,9 @@ TECHNICAL SPECIFICATIONS:
 
 
 def main():
+# NOT NEEDED - Claude Code + other ai tools will be excpected to be able to use this
+# we do need interfaces tho
+# i guess common interfaces are cli, api, gui, im not sure what else
     """CLI interface for the icon generator"""
     
     parser = argparse.ArgumentParser(description='Generate iOS app icons using AI')
