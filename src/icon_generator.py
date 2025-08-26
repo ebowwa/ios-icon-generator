@@ -183,7 +183,7 @@ def main():
     args = parser.parse_args()
     
     try:
-        generator = IconGeneratorV2()
+        generator = IconGenerator()
         
         if args.project and args.project.exists():
             # Generate from iOS project

@@ -6,7 +6,7 @@ Constructs AI prompts with rich context including localization
 
 from typing import Dict, List, Tuple, Optional
 from pathlib import Path
-from ios_localization_reader import IOSLocalizationReader
+from .ios_localization_reader import IOSLocalizationReader
 
 
 class IconPromptBuilder:
