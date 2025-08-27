@@ -6,12 +6,11 @@ Constructs AI prompts with rich context including localization
 
 from typing import Dict, List, Tuple, Optional
 from pathlib import Path
-from ios_localization_reader import IOSLocalizationReader
+from .ios_localization_reader import IOSLocalizationReader
 
 
 class IconPromptBuilder:
     """Build rich prompts for icon generation"""
-    
     # Locale-specific design context
     CULTURAL_CONTEXTS = {
         'en': 'American/International design aesthetic',
@@ -41,14 +40,14 @@ class IconPromptBuilder:
         'th': 'Thai ornate and detailed design',
         'vi': 'Vietnamese balanced and harmonious design'
     }
-    
+
     @staticmethod
     def build_prompt(
         app_name: str,
         colors: Tuple[str, str],
         style: str = "minimalist",
         app_description: str = "",
-        icon_elements: List[str] = None,
+        icon_elements: Optional[List[str]] = None,
         target_audience: str = "",
         locale: str = "en",
         cultural_style: str = "",
@@ -57,7 +56,6 @@ class IconPromptBuilder:
     ) -> str:
         """
         Build a comprehensive prompt with all context
-        
         Args:
             app_name: Name of the app
             colors: Tuple of (top_color, bottom_color) for gradient
@@ -69,7 +67,6 @@ class IconPromptBuilder:
             cultural_style: Override for cultural design preferences
             ios_project_path: Path to iOS project for localization context
             additional_prompt: Additional requirements
-            
         Returns:
             Complete prompt string
         """
@@ -86,7 +83,6 @@ class IconPromptBuilder:
                 app_name = localization_context['display_name']
             elif localization_context.get('app_name'):
                 app_name = localization_context['app_name']
-        
         # Start building the prompt
         prompt = f"""Create a {style} iOS app icon for "{app_name}"
 
@@ -103,23 +99,18 @@ TECHNICAL SPECIFICATIONS:
             prompt += f"\nAPP CONTEXT:\n- Purpose: {app_description}"
         elif localization_context.get('description'):
             prompt += f"\nAPP CONTEXT:\n- Purpose: {localization_context['description']}"
-        
         if target_audience:
             prompt += f"\n- Target Audience: {target_audience}"
-        
         if localization_context.get('category'):
             prompt += f"\n- Category: {localization_context['category']}"
-        
         # Add localization and cultural context
         prompt += "\nLOCALIZATION:"
         prompt += f"\n- Locale: {locale}"
-        
         # Use provided cultural style or default from our context
         if cultural_style:
             prompt += f"\n- Cultural Style: {cultural_style}"
         elif locale in IconPromptBuilder.CULTURAL_CONTEXTS:
             prompt += f"\n- Cultural Style: {IconPromptBuilder.CULTURAL_CONTEXTS[locale]}"
-        
         # Add any localized strings as context
         if localization_context.get('localized_strings'):
             key_strings = list(localization_context['localized_strings'].items())[:5]
@@ -127,22 +118,18 @@ TECHNICAL SPECIFICATIONS:
                 prompt += "\n- App Context (from localization):"
                 for key, value in key_strings:
                     prompt += f"\n  • {key}: {value}"
-        
         # Add visual elements
         if icon_elements:
             elements_str = ", ".join(icon_elements)
             prompt += f"\n\nVISUAL ELEMENTS:\nInclude these elements in the design: {elements_str}"
-        
         # Add text display guidance
-        prompt += f"\n\nTEXT DISPLAY:"
+        prompt += "\n\nTEXT DISPLAY:"
         prompt += f"\n- Primary text: '{app_name}'"
         prompt += "\n- Include text only if it enhances the design and remains legible at small sizes"
         prompt += "\n- For non-Latin scripts, ensure proper character rendering"
-        
         # Add any additional requirements
         if additional_prompt:
             prompt += f"\n\nADDITIONAL REQUIREMENTS:\n{additional_prompt}"
-        
         return prompt
     
     @staticmethod

@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 """
+DEPRECATED: Legacy monolithic iOS Icon Generator
+
+This file is deprecated. Use the modular implementation in src/ instead:
+from src import IconGenerator
+
 iOS Icon Generator using ai_proxy_core
 Generates all required iOS app icon sizes using AI image generation
 [MAJOR] TODO: NEED TO USE each LOCALIZATIONS InfoPList.strings as context

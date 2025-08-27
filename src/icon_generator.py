@@ -17,7 +17,6 @@ from .ios_localization_reader import IOSLocalizationReader
 
 class IconGenerator:
     """Orchestrator for icon generation with modular architecture"""
-    
     def __init__(self, api_key: Optional[str] = None):
         """
         Initialize the icon generator
@@ -28,14 +27,12 @@ class IconGenerator:
         if not api_key:
             load_dotenv()
             api_key = os.getenv('OPENAI_API_KEY')
-        
         if not api_key:
             raise ValueError("OpenAI API key is required. Set OPENAI_API_KEY environment variable.")
-        
         self.ai_generator = AIIconGenerator(api_key)
         self.icon_processor = IOSIconProcessor()
         self.prompt_builder = IconPromptBuilder()
-    
+
     def generate_icon(
         self,
         app_name: str,
@@ -44,7 +41,7 @@ class IconGenerator:
         style: str = "minimalist",
         model: str = "dalle-3",
         app_description: str = "",
-        icon_elements: List[str] = None,
+        icon_elements: Optional[List[str]] = None,
         target_audience: str = "",
         locale: str = "en",
         cultural_style: str = "",
@@ -53,7 +50,6 @@ class IconGenerator:
     ) -> bool:
         """
         Generate a single icon with full context
-        
         Args:
             app_name: Name of the app
             colors: Gradient colors tuple
@@ -67,7 +63,6 @@ class IconGenerator:
             cultural_style: Cultural design preferences
             ios_project_path: Path to iOS project for localization
             additional_prompt: Additional requirements
-            
         Returns:
             True if successful, False otherwise
         """
@@ -86,10 +81,8 @@ class IconGenerator:
         )
         
         print(f"\n📱 Generating icon for: {app_name} ({locale})")
-        
         # Generate the image
         image = self.ai_generator.generate(prompt, model)
-        
         if image:
             # Save as iOS icon set
             name_prefix = f"AppIcon-{locale}" if locale != "en" else "AppIcon"
@@ -99,9 +92,8 @@ class IconGenerator:
                 name_prefix=name_prefix
             )
             return success
-        
         return False
-    
+
     def generate_from_ios_project(
         self,
         ios_project_path: Path,
@@ -109,12 +101,11 @@ class IconGenerator:
         colors: Tuple[str, str] = ('#1E3A8A', '#60A5FA'),
         style: str = "minimalist",
         model: str = "dalle-3",
-        icon_elements: List[str] = None,
+        icon_elements: Optional[List[str]] = None,
         target_audience: str = ""
     ) -> Dict[str, bool]:
         """
         Generate icons for all localizations in an iOS project
-        
         Args:
             ios_project_path: Path to iOS project
             output_dir: Where to save icons
@@ -128,16 +119,12 @@ class IconGenerator:
             Dictionary of locale -> success status
         """
         results = {}
-        
         # Find all localizations
         locales = IOSLocalizationReader.find_all_localizations(ios_project_path)
-        
         if not locales:
             print("⚠️  No localizations found, generating default icon")
             locales = ['en']
-        
         print(f"\n🌍 Found {len(locales)} localizations: {', '.join(locales)}")
-        
         for locale in locales:
             # Get localized context
             context = IOSLocalizationReader.get_app_context_from_project(
@@ -183,7 +170,7 @@ def main():
     args = parser.parse_args()
     
     try:
-        generator = IconGeneratorV2()
+        generator = IconGenerator()
         
         if args.project and args.project.exists():
             # Generate from iOS project
@@ -191,7 +178,7 @@ def main():
             results = generator.generate_from_ios_project(
                 ios_project_path=args.project,
                 output_dir=args.output,
-                colors=tuple(args.colors),
+                colors=(args.colors[0], args.colors[1]),
                 style=args.style,
                 model=args.model,
                 icon_elements=args.elements,
@@ -210,7 +197,7 @@ def main():
             # Generate single icon
             success = generator.generate_icon(
                 app_name=args.name,
-                colors=tuple(args.colors),
+                colors=(args.colors[0], args.colors[1]),
                 output_dir=args.output,
                 style=args.style,
                 model=args.model,

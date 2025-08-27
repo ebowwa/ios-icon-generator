@@ -5,7 +5,7 @@ Handles AI-powered icon generation using ai_proxy_core
 """
 
 import base64
-from typing import Optional, Tuple
+from typing import Optional
 from PIL import Image
 from io import BytesIO
 from ai_proxy_core import OpenAIImageProvider, ImageModel
@@ -63,10 +63,9 @@ class AIIconGenerator:
             
             # Generate the image
             result = self.provider.generate(**params)
-            
             if result and 'images' in result:
                 return self._extract_image_from_response(result['images'])
-            
+                
         except Exception as e:
             print(f"❌ Error generating image: {e}")
         
